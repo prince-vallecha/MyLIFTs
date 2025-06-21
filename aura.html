@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <link rel="stylesheet" href="/aura.css">
+</head>
+<body>
+
+    <h2>LIFT - AI ChatBot</h2>
+    <div id="chatbox"></div>
+    
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)" />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+   
+    <script>
+        function simulateTypingEffect(element, text, speed = 25) {
+    let i = 0;
+    function typeCharacter() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(typeCharacter, speed); // Adjust typing speed (in ms)
+        }
+    }
+    typeCharacter();
+}
+
+        async function sendMessage() {
+            let userInput = document.getElementById("userInput").value.trim();
+            if (userInput === "") return;  
+
+            document.getElementById("userInput").value = "";
+
+            let chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<div class="message user"> ${userInput}</div>`;
+            let typingIndicator = document.createElement("div");
+typingIndicator.className = "message bot";
+typingIndicator.innerHTML = "Thinking...";
+chatbox.appendChild(typingIndicator);
+
+            try {
+                let response = await fetch("http://127.0.0.1:5000/", {
+
+
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ message: userInput })
+                });
+
+                let data = await response.json();
+                chatbox.removeChild(typingIndicator); // Remove "Typing..."
+                let botMessage = document.createElement("div");
+botMessage.className = "message bot";
+chatbox.appendChild(botMessage);
+
+// Simulate typing effect
+simulateTypingEffect(botMessage, data.reply);
+
+                chatbox.scrollTop = chatbox.scrollHeight;
+
+                if (data.exit) {
+                    chatbox.innerHTML += `<div class="message bot">Chat session ended. <br> Distress Level: <b>${data.distress_level}</b>. <br> Refresh page to restart.</div>`;
+                    document.getElementById("userInput").disabled = true;
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                chatbox.innerHTML += `<div class="message bot"> Error connecting to server.</div>`;
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+
+        function toggleMenu() {
+    let sidebar = document.getElementById("sidebar");
+    if (sidebar.style.left === "0px") {
+        sidebar.style.left = "-250px"; // Hide menu
+    } else {
+        sidebar.style.left = "0px"; // Show menu
+    }
+}
+
+// Close menu when clicking outside
+document.addEventListener("click", function (event) {
+    let sidebar = document.getElementById("sidebar");
+    let menuBtn = document.getElementById("menuBtn");
+
+    if (event.target !== sidebar && event.target !== menuBtn && !sidebar.contains(event.target)) {
+        sidebar.style.left = "-250px"; // Hide menu
+    }
+});
+document.addEventListener("DOMContentLoaded", function () {
+    let menuBtn = document.getElementById("menuBtn");
+    let sidebar = document.getElementById("sidebar");
+    let closeBtn = document.getElementById("closeBtn");
+
+    // Function to toggle menu
+    function toggleMenu() {
+        if (sidebar.style.left === "0px") {
+            sidebar.style.left = "-250px"; // Hide menu
+        } else {
+            sidebar.style.left = "0px"; // Show menu
+        }
+    }
+
+    // Open menu when clicking the button
+    menuBtn.addEventListener("click", toggleMenu);
+
+    // Close menu when clicking the close button
+    closeBtn.addEventListener("click", function () {
+        sidebar.style.left = "-250px";
+    });
+
+    // Close menu when clicking outside of it
+    document.addEventListener("click", function (event) {
+        if (event.target !== sidebar && event.target !== menuBtn && !sidebar.contains(event.target)) {
+            sidebar.style.left = "-250px";
+        }
+    });
+});
+
+
+    </script>
+
+</body>
+</html>

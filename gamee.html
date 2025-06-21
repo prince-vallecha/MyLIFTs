@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enjoy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: grey;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .cell.correct {
+            background-color: #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Enjoy</h2>
+        <p>Click on squares to find  two matching colors as quickly and accurately as possible.</p>
+        <div class="grid" id="color-grid"></div>
+        <p id="message"></p>
+        <p>Time Taken: <span id="time">0</span> seconds</p>
+        <p>Mistakes: <span id="mistakes">0</span></p>
+        <p id="result"></p>
+    </div>
+
+    <script>
+        const colors = ["red", "blue", "green", "yellow", "red", "blue", "green", "yellow"];
+        let shuffledColors = [...colors].sort(() => Math.random() - 0.5);
+        let firstPick = null;
+        let secondPick = null;
+        let lockBoard = false;
+        let startTime = Date.now();
+        let mistakes = 0;
+        let correctPairs = 0;
+        
+        function createGrid() {
+            const gridContainer = document.getElementById("color-grid");
+            gridContainer.innerHTML = "";
+            shuffledColors.forEach((color, index) => {
+                const cell = document.createElement("div");
+                cell.classList.add("cell");
+                cell.dataset.color = color;
+                cell.dataset.index = index;
+                cell.onclick = () => revealColor(cell);
+                gridContainer.appendChild(cell);
+            });
+            startTime = Date.now();
+        }
+        
+        function revealColor(cell) {
+            if (lockBoard || cell.classList.contains("correct")) return;
+            cell.style.backgroundColor = cell.dataset.color;
+            
+            if (!firstPick) {
+                firstPick = cell;
+            } else {
+                secondPick = cell;
+                lockBoard = true;
+                checkMatch();
+            }
+        }
+        
+        function checkMatch() {
+            if (firstPick.dataset.color === secondPick.dataset.color) {
+                firstPick.classList.add("correct");
+                secondPick.classList.add("correct");
+                document.getElementById("message").innerText = "Great! You found a match!";
+                correctPairs++;
+                if (correctPairs === 4) {
+                    showResult();
+                }
+            } else {
+                mistakes++;
+                document.getElementById("mistakes").innerText = mistakes;
+                setTimeout(() => {
+                    firstPick.style.backgroundColor = "grey";
+                    secondPick.style.backgroundColor = "grey";
+                }, 800);
+            }
+            setTimeout(() => {
+                firstPick = null;
+                secondPick = null;
+                lockBoard = false;
+            }, 800);
+        }
+        
+        function showResult() {
+            let timeTaken = Math.floor((Date.now() - startTime) / 1000);
+            document.getElementById("time").innerText = timeTaken;
+            let resultText = "";
+            if (timeTaken <= 10 && mistakes <= 3) {
+                resultText = "EXCLLENT PLAY 🗿.";
+            } else if (timeTaken <= 15 || mistakes <= 4) {
+                resultText = "MODERATE PLAY .";
+            } else {
+                resultText = "FAIL.";
+            }
+            document.getElementById("result").innerText = resultText;
+        }
+        
+        createGrid();
+    </script>
+</body>
+</html>

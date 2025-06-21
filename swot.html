@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot</title>
+    <link rel="stylesheet" href="/swot.css">
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <!-- Nice Select CSS -->
+    <link rel="stylesheet" href="css/nice-select.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="css/font-awesome.min.css">
+    <!-- icofont CSS -->
+    <link rel="stylesheet" href="css/icofont.css">
+    <!-- Slicknav -->
+    <link rel="stylesheet" href="css/slicknav.min.css">
+    <!-- Owl Carousel CSS -->
+    <link rel="stylesheet" href="css/owl-carousel.css">
+    <!-- Datepicker CSS -->
+    <link rel="stylesheet" href="css/datepicker.css">
+    <!-- Animate CSS -->
+    <link rel="stylesheet" href="css/animate.min.css">
+    <!-- Magnific Popup CSS -->
+    <link rel="stylesheet" href="css/magnific-popup.css">
+		
+</head>
+<body>
+    <!-- Header Area -->
+    <header class="header">
+        <!-- Header Inner -->
+        <div class="header-inner">
+            <div class="container">
+                <div class="inner">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-3 col-12">
+                            <!-- Start Logo -->
+                            <div class="logo">
+                                <a href="index.html"><img src="/logo.png" alt="#"></a>
+                            </div>
+                            <!-- End Logo -->
+                            <!-- Mobile Nav -->
+                            <div class="mobile-nav"></div>    
+                            <!-- End Mobile Nav -->
+                        </div>
+                        <div class="col-lg-7 col-md-9 col-12">
+                            <!-- Main Menu -->
+                            <div class="main-menu">
+                                <nav class="navigation">
+                                    <ul class="nav menu">
+                                        <li class="active"><a href="/index.html">Home</a></li>
+                                        <li><a href="#">Services <i class="icofont-rounded-down"></i></a>
+                                            <ul class="dropdown">
+                                                <li><a href="/swot.html">Career Hunt</a></li>
+                                                <li><a href="/swot.html">Chat with <b>Aura</b> <i class="icofont-robot"></i></a></li>
+                                                <li><a href="#">Virtual Counselling</a></li>
+                                                <li><a href="#">Work Life Guidance </a></li>
+                                                <li><a href="#">Stay Updated</a></li>
+                                                <li><a href="#">Free Time?</a></li>
+                                                
+                                            </ul>
+                                            
+                                        </li>
+                                        <li><a href="contact.html">Contact Us</a></li>
+                                        <li><a href="login1.html">Log in </a></li>
+                                        <li><a href="sign1.html">Sign Up </a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            <!--/ End Main Menu -->
+                        </div>
+                        <div class="col-lg-2 col-12">
+                            <div class="get-quote">
+                                <a href="/appointment.html" class="btn">Book Appointment</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--/ End Header Inner -->
+    </header>
+    <!-- End Header Area -->
+
+    <h2>LIFT - AI ChatBot</h2>
+    <div id="chatbox"></div>
+    
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="Type a message..." onkeypress="handleKeyPress(event)" />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+   
+    <script>
+        async function sendMessage() {
+            let userInput = document.getElementById("userInput").value.trim();
+            if (userInput === "") return;
+
+            document.getElementById("userInput").value = "";
+
+            let chatbox = document.getElementById("chatbox");
+            chatbox.innerHTML += `<div class="message user">${userInput}</div>`;
+
+            let botMessage = document.createElement("div");
+            botMessage.className = "message bot";
+            chatbox.appendChild(botMessage);
+
+            try {
+                let response = await fetch("https://mylifts.in/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: userInput })
+                });
+
+                if (!response.ok) {
+                    botMessage.innerHTML = "Error connecting to server.";
+                    return;
+                }
+
+                // Wait for the full response and display once received
+                const data = await response.json();
+                botMessage.innerHTML = data.response;
+
+                chatbox.scrollTop = chatbox.scrollHeight;
+            } catch (error) {
+                console.error("Error:", error);
+                botMessage.innerHTML = "Error connecting to server.";
+            }
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        }
+    </script>
+
+</body>
+</html>
